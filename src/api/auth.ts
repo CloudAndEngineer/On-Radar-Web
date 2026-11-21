@@ -1,5 +1,8 @@
 import { mockCaregivers } from '../data/mockCaregivers'
 import type { CaregiverSession } from '../types/auth'
+import { apiRequest } from './client'
+
+const useMock = import.meta.env.VITE_USE_MOCK !== 'false'
 
 const SESSION_KEY = 'on-radar-caregiver-session'
 
@@ -9,7 +12,33 @@ async function sha256(value: string) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
 }
 
+interface CoreLoginResponse {
+  token: string
+  caregiverId: number
+  name: string
+  centerName: string | null
+}
+
 export async function loginMockCaregiver(loginId: string, password: string): Promise<CaregiverSession> {
+  if (!useMock) {
+    // Core API 로그인 (비밀번호는 서버가 BCrypt로 확인)
+    const res = await apiRequest<CoreLoginResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ loginId: loginId.trim(), password }),
+    }).catch(() => {
+      throw new Error('아이디 또는 비밀번호를 확인해 주세요.')
+    })
+    const session: CaregiverSession = {
+      id: res.caregiverId,
+      login_id: loginId.trim(),
+      name: res.name,
+      center_name: res.centerName ?? '',
+      token: res.token,
+    }
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session))
+    return session
+  }
+
   // This client-side check is only for the disconnected demo. The backend must verify password_hash.
   const caregiver = mockCaregivers.find((record) => record.login_id === loginId.trim())
   if (!caregiver || `sha256:${await sha256(password)}` !== caregiver.password_hash) {
