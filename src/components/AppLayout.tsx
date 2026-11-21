@@ -20,7 +20,7 @@ export function AppLayout({ children }: { children?: ReactNode }) {
           <span className="brand-name">온 레이더</span>
           <span className="organization">{caregiver?.center_name ?? 'OO노인복지관'}</span>
         </Link>
-        <div className="topbar-meta"><span className="current-date">11월 16일(월) 19:40 기준</span><span className="user-pill">{caregiver?.name ?? '복지사'}</span><button className="logout-button" onClick={handleLogout} aria-label="로그아웃"><LogOut size={16} /><span>로그아웃</span></button></div>
+        <div className="topbar-meta"><span className="current-date">{new Date().toLocaleString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false })} 기준</span><span className="user-pill">{caregiver?.name ?? '복지사'}</span><button className="logout-button" onClick={handleLogout} aria-label="로그아웃"><LogOut size={16} /><span>로그아웃</span></button></div>
       </header>
       <main className="main-content">{children ?? <Outlet />}</main>
       <footer className="footer"><Activity size={15} /> 어르신의 일상 변화를 함께 살펴요</footer>
