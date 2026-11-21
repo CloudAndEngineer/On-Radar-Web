@@ -3,6 +3,7 @@ export interface CaregiverSession {
   login_id: string
   name: string
   center_name: string
+  token?: string
 }
 
 export interface MockCaregiverRecord extends CaregiverSession {
